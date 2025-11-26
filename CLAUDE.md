@@ -8,19 +8,19 @@ This repository is a Claude Code plugin marketplace that distributes the `compou
 every-marketplace/
 ├── .claude-plugin/
 │   └── marketplace.json          # Marketplace catalog (lists available plugins)
+├── docs/                         # Documentation site (GitHub Pages)
+│   ├── index.html                # Landing page
+│   ├── css/                      # Stylesheets
+│   ├── js/                       # JavaScript
+│   └── pages/                    # Reference pages
 └── plugins/
     └── compounding-engineering/   # The actual plugin
         ├── .claude-plugin/
         │   └── plugin.json        # Plugin metadata
         ├── agents/                # 24 specialized AI agents
-        ├── commands/              # 13 slash commands (including /release-docs)
+        ├── commands/              # 13 slash commands
         ├── skills/                # 11 skills
         ├── mcp-servers/           # 2 MCP servers (playwright, context7)
-        ├── docs/                  # Documentation site (static HTML/CSS/JS)
-        │   ├── index.html         # Landing page
-        │   ├── css/               # Stylesheets (style.css, docs.css)
-        │   ├── js/                # JavaScript (main.js)
-        │   └── pages/             # Reference pages (agents, commands, skills, mcp-servers)
         ├── README.md              # Plugin documentation
         └── CHANGELOG.md           # Version history
 ```
@@ -189,7 +189,7 @@ Each plugin has its own plugin.json with detailed metadata:
 
 ## Documentation Site
 
-The plugin includes a static documentation site at `plugins/compounding-engineering/docs/`. This site is built with plain HTML/CSS/JS (based on Evil Martians' LaunchKit template) and requires no build step to view.
+The documentation site is at `/docs` in the repository root (for GitHub Pages). This site is built with plain HTML/CSS/JS (based on Evil Martians' LaunchKit template) and requires no build step to view.
 
 ### Documentation Structure
 
@@ -246,10 +246,10 @@ Since the docs are static HTML, you can view them directly:
 
 ```bash
 # Open in browser
-open plugins/compounding-engineering/docs/index.html
+open docs/index.html
 
 # Or start a local server
-cd plugins/compounding-engineering/docs
+cd docs
 python -m http.server 8000
 # Then visit http://localhost:8000
 ```
