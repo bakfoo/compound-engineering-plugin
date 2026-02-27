@@ -37,15 +37,16 @@ For every data migration or backfill, you must:
 - [ ] What tables/rows does the migration touch? List them explicitly.
 - [ ] What are the **actual** values in production? Document the exact SQL to verify.
 - [ ] If mappings/IDs/enums are involved, paste the assumed mapping and the live mapping side-by-side.
-- [ ] Never trust fixtures - they often have different IDs than production.
+- [ ] Never trust test fixtures - they often have different IDs than production.
 
 ### 2. Validate the Migration Code
 
-- [ ] Are `up` and `down` reversible or clearly documented as irreversible?
+- [ ] Are migration scripts reversible or clearly documented as irreversible?
 - [ ] Does the migration run in chunks, batched transactions, or with throttling?
 - [ ] Are `UPDATE ... WHERE ...` clauses scoped narrowly? Could it affect unrelated rows?
 - [ ] Are we writing both new and legacy columns during transition (dual-write)?
 - [ ] Are there foreign keys or indexes that need updating?
+- [ ] Is the migration script idempotent (safe to re-run)?
 
 ### 3. Verify the Mapping / Transformation Logic
 
@@ -64,19 +65,19 @@ For every data migration or backfill, you must:
 
 - [ ] Is the code path behind a feature flag or environment variable?
 - [ ] If we need to revert, how do we restore the data? Is there a snapshot/backfill procedure?
-- [ ] Are manual scripts written as idempotent rake tasks with SELECT verification?
+- [ ] Are manual scripts written as idempotent Python scripts with SELECT verification?
 
 ### 6. Structural Refactors & Code Search
 
-- [ ] Search for every reference to removed columns/tables/associations
-- [ ] Check background jobs, admin pages, rake tasks, and views for deleted associations
-- [ ] Do any serializers, APIs, or analytics jobs expect old columns?
+- [ ] Search for every reference to removed columns/tables
+- [ ] Check background tasks, admin endpoints, CLI commands for deleted references
+- [ ] Do any serializers, APIs, or analytics scripts expect old columns?
 - [ ] Document the exact search commands run so future reviewers can repeat them
 
 ## Quick Reference SQL Snippets
 
 ```sql
--- Check legacy value → new value mapping
+-- Check legacy value -> new value mapping
 SELECT legacy_column, new_column, COUNT(*)
 FROM <table_name>
 GROUP BY legacy_column, new_column
@@ -97,8 +98,8 @@ WHERE new_column = '<expected_value>';
 ## Common Bugs to Catch
 
 1. **Swapped IDs** - `1 => TypeA, 2 => TypeB` in code but `1 => TypeB, 2 => TypeA` in production
-2. **Missing error handling** - `.fetch(id)` crashes on unexpected values instead of fallback
-3. **Orphaned eager loads** - `includes(:deleted_association)` causes runtime errors
+2. **Missing error handling** - `dict[id]` raises KeyError on unexpected values instead of fallback
+3. **Orphaned references** - Code still references deleted columns or tables
 4. **Incomplete dual-write** - New records only write new column, breaking rollback
 
 ## Output Format

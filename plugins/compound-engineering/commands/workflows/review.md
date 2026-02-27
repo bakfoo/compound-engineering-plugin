@@ -87,21 +87,19 @@ Additionally, always run these regardless of settings:
 
 These agents are run ONLY when the PR matches specific criteria. Check the PR files list to determine if they apply:
 
-**MIGRATIONS: If PR contains database migrations, schema.rb, or data backfills:**
+**MIGRATIONS: If PR contains database migration scripts or data backfills:**
 
-- Task schema-drift-detector(PR content) - Detects unrelated schema.rb changes by cross-referencing against included migrations (run FIRST)
 - Task data-migration-expert(PR content) - Validates ID mappings match production, checks for swapped values, verifies rollback safety
 - Task deployment-verification-agent(PR content) - Creates Go/No-Go deployment checklist with SQL verification queries
 
 **When to run:**
-- PR includes files matching `db/migrate/*.rb` or `db/schema.rb`
+- PR includes SQL migration scripts (`migrations/`, `alembic/`, `*.sql`)
 - PR modifies columns that store IDs, enums, or mappings
-- PR includes data backfill scripts or rake tasks
+- PR includes data backfill scripts
 - PR title/body mentions: migration, backfill, data transformation, ID mapping
 
 **What these agents check:**
-- `schema-drift-detector`: Cross-references schema.rb changes against PR migrations to catch unrelated columns/indexes from local database state
-- `data-migration-expert`: Verifies hard-coded mappings match production reality (prevents swapped IDs), checks for orphaned associations, validates dual-write patterns
+- `data-migration-expert`: Verifies hard-coded mappings match production reality (prevents swapped IDs), checks for orphaned references, validates dual-write patterns
 - `deployment-verification-agent`: Produces executable pre/post-deploy checklists with SQL queries, rollback procedures, and monitoring plans
 
 </conditional_agents>
@@ -381,10 +379,13 @@ After creating all todo files, present comprehensive summary:
 
 ### Review Agents Used:
 
-- kieran-rails-reviewer
+- kieran-python-reviewer
+- python-async-reviewer
+- python-typing-reviewer
+- sql-query-reviewer
 - security-sentinel
 - performance-oracle
-- architecture-strategist
+- code-simplicity-reviewer
 - agent-native-reviewer
 - [other agents]
 
@@ -448,8 +449,8 @@ After creating all todo files, present comprehensive summary:
 | Indicator | Project Type |
 |-----------|--------------|
 | `*.xcodeproj`, `*.xcworkspace`, `Package.swift` (iOS) | iOS/macOS |
-| `Gemfile`, `package.json`, `app/views/*`, `*.html.*` | Web |
-| Both iOS files AND web files | Hybrid (test both) |
+| `pyproject.toml`, `requirements.txt`, `*.py` | Python Web |
+| `package.json`, `*.html`, `*.tsx` | Frontend Web |
 
 </detect_project_type>
 
@@ -457,11 +458,13 @@ After creating all todo files, present comprehensive summary:
 
 After presenting the Summary Report, offer appropriate testing based on project type:
 
-**For Web Projects:**
+**For Python Web Projects:**
 ```markdown
-**"Want to run browser tests on the affected pages?"**
-1. Yes - run `/test-browser`
-2. No - skip
+**"Want to run tests?"**
+1. Unit + Integration tests - run `uv run pytest`
+2. Browser tests - run `/test-browser`
+3. Both
+4. No - skip
 ```
 
 **For iOS Projects:**
@@ -471,13 +474,11 @@ After presenting the Summary Report, offer appropriate testing based on project 
 2. No - skip
 ```
 
-**For Hybrid Projects (e.g., Rails + Hotwire Native):**
+**For Frontend Web Projects:**
 ```markdown
-**"Want to run end-to-end tests?"**
-1. Web only - run `/test-browser`
-2. iOS only - run `/xcode-test`
-3. Both - run both commands
-4. No - skip
+**"Want to run browser tests on the affected pages?"**
+1. Yes - run `/test-browser`
+2. No - skip
 ```
 
 </offer_testing>
