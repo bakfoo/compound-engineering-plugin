@@ -343,7 +343,7 @@ Examples:
 - `p2` - Important (should fix, architectural/performance)
 - `p3` - Nice-to-have (enhancements, cleanup)
 
-**Tagging:** Always add `code-review` tag, plus: `security`, `performance`, `architecture`, `rails`, `quality`, etc.
+**Tagging:** Always add `code-review` tag, plus: `security`, `performance`, `architecture`, `python`, `quality`, etc.
 
 #### Step 3: Summary Report
 
