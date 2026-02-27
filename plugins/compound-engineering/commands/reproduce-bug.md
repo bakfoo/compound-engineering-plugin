@@ -13,7 +13,7 @@ Look at github issue #$ARGUMENTS and read the issue description and comments.
 
 Run the following agents in parallel to investigate the bug:
 
-1. Task rails-console-explorer(issue_description)
+1. Task python-debug-explorer(issue_description)
 2. Task appsignal-log-investigator(issue_description)
 
 Think about the places it could go wrong looking at the codebase. Look for logging output we can look for.

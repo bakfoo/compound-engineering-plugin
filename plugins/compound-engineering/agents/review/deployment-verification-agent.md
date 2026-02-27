@@ -6,7 +6,7 @@ model: inherit
 
 <examples>
 <example>
-Context: The user has a PR that modifies how emails are classified.
+Context: The user has a PR that modifies how data is classified.
 user: "This PR changes the classification logic, can you create a deployment checklist?"
 assistant: "I'll use the deployment-verification-agent to create a Go/No-Go checklist with verification queries"
 <commentary>Since the PR affects production data behavior, use deployment-verification-agent to create concrete verification and rollback plans.</commentary>
@@ -39,7 +39,7 @@ State the specific data invariants that must remain true:
 
 ```
 Example invariants:
-- [ ] All existing Brief emails remain selectable in briefs
+- [ ] All existing records remain accessible
 - [ ] No records have NULL in both old and new columns
 - [ ] Count of status=active records unchanged
 - [ ] Foreign key relationships remain valid
@@ -70,9 +70,9 @@ For each destructive step:
 
 | Step | Command | Estimated Runtime | Batching | Rollback |
 |------|---------|-------------------|----------|----------|
-| 1. Add column | `rails db:migrate` | < 1 min | N/A | Drop column |
-| 2. Backfill data | `rake data:backfill` | ~10 min | 1000 rows | Restore from backup |
-| 3. Enable feature | Set flag | Instant | N/A | Disable flag |
+| 1. Add column | `python migrate.py` | < 1 min | N/A | Drop column |
+| 2. Backfill data | `python scripts/backfill.py` | ~10 min | 1000 rows | Restore from backup |
+| 3. Enable feature | Set env var/flag | Instant | N/A | Disable flag |
 
 ### 4. Post-Deploy Verification (Within 5 Minutes)
 
@@ -115,15 +115,21 @@ SELECT status, COUNT(*) FROM records GROUP BY status;
 | Missing data count | > 0 for 5 min | /dashboard/data |
 | User reports | Any report | Support queue |
 
-**Sample console verification (run 1 hour after deploy):**
-```ruby
-# Quick sanity check
-Record.where(new_column: nil, old_column: [present values]).count
-# Expected: 0
+**Sample verification (run 1 hour after deploy):**
+```python
+# Quick sanity check via async DB connection
+async with pool.acquire() as conn:
+    count = await conn.fetchval(
+        "SELECT COUNT(*) FROM records WHERE new_column IS NULL AND old_column IS NOT NULL"
+    )
+    assert count == 0, f"Found {count} unmigrated records"
 
-# Spot check random records
-Record.order("RANDOM()").limit(10).pluck(:old_column, :new_column)
-# Verify mapping is correct
+    # Spot check random records
+    rows = await conn.fetch(
+        "SELECT old_column, new_column FROM records ORDER BY RANDOM() LIMIT 10"
+    )
+    for row in rows:
+        print(f"{row['old_column']} -> {row['new_column']}")
 ```
 
 ## Output Format
@@ -133,29 +139,29 @@ Produce a complete Go/No-Go checklist that an engineer can literally execute:
 ```markdown
 # Deployment Checklist: [PR Title]
 
-## 🔴 Pre-Deploy (Required)
+## Pre-Deploy (Required)
 - [ ] Run baseline SQL queries
 - [ ] Save expected values
 - [ ] Verify staging test passed
 - [ ] Confirm rollback plan reviewed
 
-## 🟡 Deploy Steps
+## Deploy Steps
 1. [ ] Deploy commit [sha]
 2. [ ] Run migration
 3. [ ] Enable feature flag
 
-## 🟢 Post-Deploy (Within 5 Minutes)
+## Post-Deploy (Within 5 Minutes)
 - [ ] Run verification queries
 - [ ] Compare with baseline
 - [ ] Check error dashboard
-- [ ] Spot check in console
+- [ ] Spot check with verification script
 
-## 🔵 Monitoring (24 Hours)
+## Monitoring (24 Hours)
 - [ ] Set up alerts
 - [ ] Check metrics at +1h, +4h, +24h
 - [ ] Close deployment ticket
 
-## 🔄 Rollback (If Needed)
+## Rollback (If Needed)
 1. [ ] Disable feature flag
 2. [ ] Deploy rollback commit
 3. [ ] Run data restoration

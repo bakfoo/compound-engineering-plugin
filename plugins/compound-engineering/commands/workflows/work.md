@@ -103,11 +103,11 @@ This command takes a work document (plan, specification, or todo file) and execu
 
    | Question | What to do |
    |----------|------------|
-   | **What fires when this runs?** Callbacks, middleware, observers, event handlers — trace two levels out from your change. | Read the actual code (not docs) for callbacks on models you touch, middleware in the request chain, `after_*` hooks. |
-   | **Do my tests exercise the real chain?** If every dependency is mocked, the test proves your logic works *in isolation* — it says nothing about the interaction. | Write at least one integration test that uses real objects through the full callback/middleware chain. No mocks for the layers that interact. |
-   | **Can failure leave orphaned state?** If your code persists state (DB row, cache, file) before calling an external service, what happens when the service fails? Does retry create duplicates? | Trace the failure path with real objects. If state is created before the risky call, test that failure cleans up or that retry is idempotent. |
-   | **What other interfaces expose this?** Mixins, DSLs, alternative entry points (Agent vs Chat vs ChatMethods). | Grep for the method/behavior in related classes. If parity is needed, add it now — not as a follow-up. |
-   | **Do error strategies align across layers?** Retry middleware + application fallback + framework error handling — do they conflict or create double execution? | List the specific error classes at each layer. Verify your rescue list matches what the lower layer actually raises. |
+   | **What fires when this runs?** Middleware, event handlers, signal handlers, dependency injection — trace two levels out from your change. | Read the actual code (not docs) for middleware in the request chain, startup/shutdown handlers, background tasks triggered. |
+   | **Do my tests exercise the real chain?** If every dependency is mocked, the test proves your logic works *in isolation* — it says nothing about the interaction. | Write at least one integration test that uses real objects through the full middleware chain. No mocks for the layers that interact. Use `pytest` with real async DB connections. |
+   | **Can failure leave orphaned state?** If your code persists state (DB row, cache, file) before calling an external service, what happens when the service fails? Does retry create duplicates? | Trace the failure path with real objects. If state is created before the risky call, test that failure cleans up or that retry is idempotent. Check async context manager cleanup. |
+   | **What other interfaces expose this?** Base classes, protocols, alternative entry points (API endpoint vs CLI vs background task). | Grep for the method/behavior in related modules. If parity is needed, add it now — not as a follow-up. |
+   | **Do error strategies align across layers?** Retry middleware + application fallback + framework error handling — do they conflict or create double execution? | List the specific exception classes at each layer. Verify your except clauses match what the lower layer actually raises. |
 
    **When to skip:** Leaf-node changes with no callbacks, no state persistence, no parallel interfaces. If the change is purely additive (new helper method, new view partial), the check takes 10 seconds and the answer is "nothing fires, skip."
 
@@ -130,8 +130,8 @@ This command takes a work document (plan, specification, or todo file) and execu
 
    **Commit workflow:**
    ```bash
-   # 1. Verify tests pass (use project's test command)
-   # Examples: bin/rails test, npm test, pytest, go test, etc.
+   # 1. Verify tests pass
+   uv run pytest
 
    # 2. Stage only files related to this logical unit (not `git add .`)
    git add <files related to this logical unit>
@@ -182,11 +182,12 @@ This command takes a work document (plan, specification, or todo file) and execu
    Always run before submitting:
 
    ```bash
-   # Run full test suite (use project's test command)
-   # Examples: bin/rails test, npm test, pytest, go test, etc.
+   # Run full test suite
+   uv run pytest
 
-   # Run linting (per CLAUDE.md)
-   # Use linting-agent before pushing to origin
+   # Run linting and type checking
+   uv run ruff check . --fix && uv run ruff format .
+   uv run mypy .
    ```
 
 2. **Consider Reviewer Agents** (Optional)
@@ -241,12 +242,12 @@ This command takes a work document (plan, specification, or todo file) and execu
 
    **Step 1: Start dev server** (if not running)
    ```bash
-   bin/dev  # Run in background
+   uv run uvicorn app.main:app --reload  # Run in background
    ```
 
    **Step 2: Capture screenshots with agent-browser CLI**
    ```bash
-   agent-browser open http://localhost:3000/[route]
+   agent-browser open http://localhost:8000/[route]
    agent-browser snapshot -i
    agent-browser screenshot output.png
    ```
@@ -437,8 +438,8 @@ Before creating PR, verify:
 
 - [ ] All clarifying questions asked and answered
 - [ ] All TodoWrite tasks marked completed
-- [ ] Tests pass (run project's test command)
-- [ ] Linting passes (use linting-agent)
+- [ ] Tests pass (`uv run pytest`)
+- [ ] Linting passes (`uv run ruff check .` + `uv run mypy .`)
 - [ ] Code follows existing patterns
 - [ ] Figma designs match implementation (if applicable)
 - [ ] Before/after screenshots captured and uploaded (for UI changes)

@@ -131,7 +131,7 @@ The skill tells you what to do - follow it. Execute the skill completely."
 
 **Example spawns:**
 ```
-Task general-purpose: "Use the dhh-rails-style skill at ~/.claude/plugins/.../dhh-rails-style. Read SKILL.md and apply it to: [Rails sections of plan]"
+Task general-purpose: "Use the python-async-style skill at ~/.claude/plugins/.../python-async-style. Read SKILL.md and apply it to: [Python async sections of plan]"
 
 Task general-purpose: "Use the frontend-design skill at ~/.claude/plugins/.../frontend-design. Read SKILL.md and apply it to: [UI sections of plan]"
 
@@ -187,7 +187,7 @@ Each learning file has YAML frontmatter with metadata. Read the first ~20 lines 
 ---
 title: "N+1 Query Fix for Briefs"
 category: performance-issues
-tags: [activerecord, n-plus-one, includes, eager-loading]
+tags: [sql, n-plus-one, connection-pool, query-optimization]
 module: Briefs
 symptom: "Slow page load, multiple queries in logs"
 root_cause: "Missing includes on association"
@@ -248,10 +248,10 @@ If NOT relevant after deeper analysis:
 
 **Example filtering:**
 ```
-# Found 15 learning files, plan is about "Rails API caching"
+# Found 15 learning files, plan is about "Python API caching"
 
 # SPAWN (likely relevant):
-docs/solutions/performance-issues/n-plus-one-queries.md      # tags: [activerecord] ✓
+docs/solutions/performance-issues/n-plus-one-queries.md      # tags: [sql] ✓
 docs/solutions/performance-issues/redis-cache-stampede.md    # tags: [caching, redis] ✓
 docs/solutions/configuration-fixes/redis-connection-pool.md  # tags: [redis] ✓
 

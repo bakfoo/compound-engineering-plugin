@@ -32,12 +32,10 @@ If "Cancel": stop.
 Auto-detect the project stack:
 
 ```bash
-test -f Gemfile && test -f config/routes.rb && echo "rails" || \
-test -f Gemfile && echo "ruby" || \
-test -f tsconfig.json && echo "typescript" || \
-test -f package.json && echo "javascript" || \
 test -f pyproject.toml && echo "python" || \
 test -f requirements.txt && echo "python" || \
+test -f tsconfig.json && echo "typescript" || \
+test -f package.json && echo "javascript" || \
 echo "general"
 ```
 
@@ -55,8 +53,7 @@ options:
 
 ### If Auto-configure → Skip to Step 4 with defaults:
 
-- **Rails:** `[kieran-rails-reviewer, dhh-rails-reviewer, code-simplicity-reviewer, security-sentinel, performance-oracle]`
-- **Python:** `[kieran-python-reviewer, code-simplicity-reviewer, security-sentinel, performance-oracle]`
+- **Python:** `[kieran-python-reviewer, python-async-reviewer, python-typing-reviewer, sql-query-reviewer, code-simplicity-reviewer, security-sentinel, performance-oracle]`
 - **TypeScript:** `[kieran-typescript-reviewer, code-simplicity-reviewer, security-sentinel, performance-oracle]`
 - **General:** `[code-simplicity-reviewer, security-sentinel, performance-oracle, architecture-strategist]`
 
@@ -72,10 +69,8 @@ header: "Stack"
 options:
   - label: "{detected_type} (Recommended)"
     description: "Auto-detected from project files"
-  - label: "Rails"
-    description: "Ruby on Rails — adds DHH-style and Rails-specific reviewers"
   - label: "Python"
-    description: "Python — adds Pythonic pattern reviewer"
+    description: "Python — adds async, typing, SQL, and Pythonic pattern reviewers"
   - label: "TypeScript"
     description: "TypeScript — adds type safety reviewer"
 ```
@@ -116,8 +111,7 @@ options:
 ## Step 4: Build Agent List and Write File
 
 **Stack-specific agents:**
-- Rails → `kieran-rails-reviewer, dhh-rails-reviewer`
-- Python → `kieran-python-reviewer`
+- Python → `kieran-python-reviewer, python-async-reviewer, python-typing-reviewer, sql-query-reviewer`
 - TypeScript → `kieran-typescript-reviewer`
 - General → (none)
 
@@ -148,9 +142,10 @@ Add project-specific review instructions here.
 These notes are passed to all review agents during /workflows:review and /workflows:work.
 
 Examples:
-- "We use Turbo Frames heavily — check for frame-busting issues"
-- "Our API is public — extra scrutiny on input validation"
+- "We use asyncpg with connection pooling — check for connection leaks"
+- "Our API is public — extra scrutiny on input validation and SQL injection"
 - "Performance-critical: we serve 10k req/s on this endpoint"
+- "No ORM — all SQL is raw, check parameterization thoroughly"
 ```
 
 ## Step 5: Confirm

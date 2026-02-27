@@ -29,7 +29,7 @@ This command tests affected pages in a real browser, catching issues that unit t
 ## Prerequisites
 
 <requirements>
-- Local development server running (e.g., `bin/dev`, `rails server`, `npm run dev`)
+- Local development server running (e.g., `uv run uvicorn app.main:app --reload`, `npm run dev`)
 - agent-browser CLI installed (see Setup below)
 - Git repository with changes to test
 </requirements>
@@ -138,7 +138,7 @@ If server is not running, inform user:
 **Server not running**
 
 Please start your development server:
-- Rails: `bin/dev` or `rails server`
+- Python: `uv run uvicorn app.main:app --reload`
 - Node/Next.js: `npm run dev`
 
 Then run `/test-browser` again.

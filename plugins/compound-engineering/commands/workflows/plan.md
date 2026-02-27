@@ -120,7 +120,7 @@ Run these agents in parallel:
 
 After all research steps complete, consolidate findings:
 
-- Document relevant file paths from repo research (e.g., `app/services/example_service.rb:42`)
+- Document relevant file paths from repo research (e.g., `src/services/example_service.py:42`)
 - **Include relevant institutional learnings** from `docs/solutions/` (key insights, gotchas to avoid)
 - Note external documentation URLs and best practices (if external research was done)
 - List related issues or PRs discovered
@@ -206,14 +206,12 @@ origin: docs/brainstorms/YYYY-MM-DD-<topic>-brainstorm.md  # if originated from 
 
 ## MVP
 
-### test.rb
+### example.py
 
-```ruby
-class Test
-  def initialize
-    @name = "test"
-  end
-end
+```python
+class Example:
+    def __init__(self) -> None:
+        self.name = "example"
 ```
 
 ## Sources
@@ -483,13 +481,11 @@ Apply best practices for clarity and actionability, making the issue easy to sca
 # Good example with syntax highlighting and line references
 
 
-```ruby
-# app/services/user_service.rb:42
-def process_user(user)
-
-# Implementation here
-
-end
+```python
+# src/services/user_service.py:42
+async def process_user(user: User) -> ProcessResult:
+    # Implementation here
+    ...
 ```
 
 # Collapsible error logs
@@ -572,7 +568,7 @@ After writing the plan file, use the **AskUserQuestion tool** to present these o
 **Options:**
 1. **Open plan in editor** - Open the plan file for review
 2. **Run `/deepen-plan`** - Enhance each section with parallel research agents (best practices, performance, UI)
-3. **Run `/technical_review`** - Technical feedback from code-focused reviewers (DHH, Kieran, Simplicity)
+3. **Run `/technical_review`** - Technical feedback from code-focused reviewers (Kieran Python, Simplicity)
 4. **Review and refine** - Improve the document through structured self-review
 5. **Start `/workflows:work`** - Begin implementing this plan locally
 6. **Start `/workflows:work` on remote** - Begin implementing in Claude Code on the web (use `&` to run in background)

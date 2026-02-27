@@ -117,8 +117,8 @@ Implement #$ARGUMENTS following these steps:
    - Ensure code follows CLAUDE.md conventions
 
 4. Verify
-   - Run tests: `bin/rails test`
-   - Run linter: `bundle exec standardrb`
+   - Run tests: `uv run pytest`
+   - Run linter: `uv run ruff check . && uv run mypy .`
    - Check changes with git diff
 
 5. Commit (optional)
